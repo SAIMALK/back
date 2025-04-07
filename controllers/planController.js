@@ -27,7 +27,14 @@ const createPlan = asyncHandler(async (req, res) => {
   });
 
   const createdPlan = await plan.save();
+  console.log('done')
   res.status(201).json(createdPlan);
+});
+
+const getPlanCount = asyncHandler(async (req, res) => {
+  const totalPlan  = await Plan.countDocuments({ });
+
+  res.json({ totalPlan  });
 });
 
 // @desc    Fetch all plans
@@ -57,10 +64,10 @@ const getPlanById = asyncHandler(async (req, res) => {
 // @route   PUT /api/plans/:id
 // @access  Private
 const updatePlan = asyncHandler(async (req, res) => {
-  const userId = req.user._id; // Assuming user authentication middleware sets req.user
+ 
   const { landSize, startDate, labourCost, seedName, marketDistance } = req.body;
-
-  const plan = await Plan.findOne({ _id: req.params.id, userId });
+ 
+  const plan = await Plan.findById(req.params.id );
 
   if (plan) {
     plan.landSize = landSize || plan.landSize;
@@ -108,6 +115,7 @@ const getPlansByCropId = asyncHandler(async (req, res) => {
 export {
   createPlan,
   getPlans,
+  getPlanCount,
   getPlanById,
   updatePlan,
   deletePlan,

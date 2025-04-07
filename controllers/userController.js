@@ -122,6 +122,10 @@ const getUsers = asyncHandler(async (req, res) => {
   res.json(users);
 });
 
+const getUsersCount = asyncHandler(async (req, res) => {
+  const usersCount = await User.countDocuments({});
+  res.json(usersCount);
+});
 // @desc    Delete user
 // @route   DELETE /api/users/:id
 // @access  Private/Admin
@@ -183,6 +187,7 @@ export {
   authUser,
   registerUser,
   logoutUser,
+  getUsersCount,
   getUserProfile,
   updateUserProfile,
   getUsers,

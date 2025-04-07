@@ -3,17 +3,8 @@ import Fertilizer from "../MODELS/fertilizerModel.js";
 import { generateObjectId } from "../utils/generateObjId.js";
 
 const getFertilizers = asyncHandler(async (req, res) => {
-  const keyword = req.query.keyword
-    ? {
-        title: {
-          $regex: req.query.keyword,
-          $options: "i",
-        },
-      }
-    : {};
-
-  const count = await Fertilizer.countDocuments({ ...keyword });
-  const fertilizers = await Fertilizer.find({ ...keyword });
+ 
+  const fertilizers = await Fertilizer.find({ });
 
   res.json({ fertilizers });
 });
@@ -33,86 +24,11 @@ const getFertilizerById = asyncHandler(async (req, res) => {
     return next(new Error("Resource not found"));
   }
 });
+const getFertilizerCount = asyncHandler(async (req, res) => {
+  const totalFertilizer  = await Fertilizer.countDocuments({ });
 
-// @desc    Create a fertilizer
-// @route   POST /api/fertilizers
-// @access  Private/Admin
-const createFertilizer = asyncHandler(async (req, res) => {
-  const fertilizer = new Fertilizer({
-    title: "Sample Title",
-    type: "Novel",
-    genre: ["Fantasy"],
-    user: req.user._id,
-    cover: "/images/sample.jpg",
-    status: "Sample Status",
-    plot: "Sample Plot",
-    chapters: 0,
-    author: generateObjectId("1"),
-    date: "Mar 22, 2024",
-    numReviews: 0,
-    rating: 5,
-    rank: "1",
-  });
-
-  const createdFertilizer = await fertilizer.save();
-  res.status(201).json(createdFertilizer);
+  res.json({ totalFertilizer  });
 });
-
-// @desc    Update a fertilizer
-// @route   PUT /api/fertilizers/:id
-// @access  Private/Admin
-const updateFertilizer = asyncHandler(async (req, res) => {
-  const {
-    title,
-    genre,
-    type,
-    status,
-    cover,
-    plot,
-    rank,
-    rating,
-    chapters,
-    date,
-    author,
-  } = req.body;
-
-  const fertilizer = await Fertilizer.findById(req.params.id);
-
-  if (fertilizer) {
-    fertilizer.title = title;
-    fertilizer.genre = genre;
-    fertilizer.type = type;
-    fertilizer.status = status;
-    fertilizer.cover = cover;
-    fertilizer.plot = plot;
-    fertilizer.rank = rank;
-    fertilizer.rating = rating;
-    fertilizer.date = date;
-    fertilizer.chapters = chapters;
-    fertilizer.author = author;
-    const updatedFertilizer = await fertilizer.save();
-    res.json(updatedFertilizer);
-  } else {
-    res.status(404);
-    throw new Error("Fertilizer not found");
-  }
-});
-
-// @desc    Delete a fertilizer
-// @route   DELETE /api/fertilizers/:id
-// @access  Private/Admin
-const deleteFertilizer = asyncHandler(async (req, res) => {
-  const fertilizer = await Fertilizer.findById(req.params.id);
-
-  if (fertilizer) {
-    await Fertilizer.deleteOne({ _id: fertilizer._id });
-    res.json({ message: "Fertilizer removed" });
-  } else {
-    res.status(404);
-    throw new Error("Fertilizer not found");
-  }
-});
-
 // @desc    Create new review
 // @route   POST /api/fertilizers/:id/reviews
 // @access  Private
@@ -154,11 +70,72 @@ const createFertilizerReview = asyncHandler(async (req, res) => {
   }
 });
 
+const createFertilizer = asyncHandler(async (req, res) => {
+
+  const { name,
+    description,
+    img,
+    usage,
+    price,
+    type,
+    indication } = req.body;
+
+  const fertilizer = new Fertilizer({
+    name,
+    description,
+    img,
+    usage,
+    price,
+    type,
+    indication
+  });
+
+  const createdFertilizer = await fertilizer.save();
+  res.status(201).json(createdFertilizer);
+});
+
+const deleteFertilizer = asyncHandler(async (req, res) => {
+  const fertilizer = await Fertilizer.findById(req.params.id);
+  
+  if (!fertilizer) {
+    return res.status(404).json({ message: 'Fertilizer not found' });
+  }
+
+  await Fertilizer.deleteOne({ _id: fertilizer._id });
+  res.json({ message: 'Fertilizer removed' });
+});
+
+const updateFertilizer = asyncHandler(async (req, res) => {
+
+  const { name, description, img, usage, price, type, indication
+     } = req.body;
+
+    const fertilizerId = req.params.id;
+
+  const fertilizer = await Fertilizer.findById(fertilizerId);
+
+  if (fertilizer) {
+    fertilizer.name = name || fertilizer.name;
+    fertilizer.usage = usage || fertilizer.usage;
+    fertilizer.description = description || fertilizer.description;
+    fertilizer.price = price || fertilizer.price;
+    fertilizer.type = type || fertilizer.type;
+    fertilizer.indication = indication || fertilizer.indication;
+    fertilizer.img = img || fertilizer.img;
+    
+    const updatedFertilizer = await fertilizer.save();
+    res.json(updatedFertilizer);
+  } else {
+    res.status(404);
+    throw new Error("Fertilizer not found");
+  }
+});
 export {
   getFertilizers,
+  getFertilizerCount,
   getFertilizerById,
-  createFertilizer,
-  updateFertilizer,
-  deleteFertilizer,
   createFertilizerReview,
+  createFertilizer,
+  deleteFertilizer,
+  updateFertilizer
 };
