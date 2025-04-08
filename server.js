@@ -18,7 +18,9 @@ await connectDB();
 import cors from 'cors';
 
 // Enable CORS for all routes
-app.use(cors());
+app.use(cors({
+   origin: 'http://localhost:3000', // Replace with your frontend URL
+ }));
 
 
 // mongoose.connect("mongodb://127.0.0.1:27017/farmIq");
